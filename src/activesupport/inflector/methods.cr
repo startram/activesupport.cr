@@ -4,6 +4,39 @@ module ActiveSupport
   module Inflector
     extend self
 
+    # Returns the plural form of the word in the string.
+    #
+    # If passed an optional +locale+ parameter, the word will be
+    # pluralized using rules defined for that language. By default,
+    # this parameter is set to <tt>:en</tt>.
+    #
+    #   pluralize("post")             # => "posts"
+    #   pluralize("octopus")          # => "octopi"
+    #   pluralize("sheep")            # => "sheep"
+    #   pluralize("words")            # => "words"
+    #   pluralize("CamelOctopus")     # => "CamelOctopi"
+    #   pluralize("ley", :es)         # => "leyes"
+    def pluralize(word, locale = :en)
+      apply_inflections(word, inflections(locale).plurals)
+    end
+
+    # The reverse of #pluralize, returns the singular form of a word in a
+    # string.
+    #
+    # If passed an optional +locale+ parameter, the word will be
+    # singularized using rules defined for that language. By default,
+    # this parameter is set to <tt>:en</tt>.
+    #
+    #   singularize('posts')            # => "post"
+    #   singularize('octopi')           # => "octopus"
+    #   singularize('sheep')            # => "sheep"
+    #   singularize('word')             # => "word"
+    #   singularize('CamelOctopi')      # => "CamelOctopus"
+    #   singularize('leyes', :es)       # => "ley"
+    def singularize(word, locale = :en)
+      apply_inflections(word, inflections(locale).singulars)
+    end
+
     # Converts strings to UpperCamelCase.
     # If the +uppercase_first_letter+ parameter is set to false, then produces
     # lowerCamelCase.
@@ -103,6 +136,21 @@ module ActiveSupport
       result
     end
 
+    # Creates a class name from a plural table name like Rails does for table
+    # names to models. Note that this returns a string and not a Class (To
+    # convert to an actual class follow +classify+ with #constantize).
+    #
+    #   classify("egg_and_hams") # => "EggAndHam"
+    #   classify("posts")        # => "Post"
+    #
+    # Singular names are not handled correctly:
+    #
+    #   classify("calculus")     # => "Calculu"
+    def classify(table_name)
+      # strip out any leading schema name
+      camelize(singularize(table_name.to_s.gsub(/.*\./, "")))
+    end
+
     # Replaces underscores with dashes in the string.
     #
     #   dasherize("puni_puni") # => "puni-puni"
@@ -110,19 +158,65 @@ module ActiveSupport
       underscored_word.tr("_", "-")
     end
 
+    # Returns the suffix that should be added to a number to denote the position
+    # in an ordered sequence such as 1st, 2nd, 3rd, 4th.
+    #
+    #   ordinal(1)     # => "st"
+    #   ordinal(2)     # => "nd"
+    #   ordinal(1002)  # => "nd"
+    #   ordinal(1003)  # => "rd"
+    #   ordinal(-11)   # => "th"
+    #   ordinal(-1021) # => "st"
+    def ordinal(number)
+      abs_number = number.to_i.abs
+
+      if (11..13).includes?(abs_number % 100)
+        "th"
+      else
+        case abs_number % 10
+          when 1; "st"
+          when 2; "nd"
+          when 3; "rd"
+          else    "th"
+        end
+      end
+    end
+
+    # Turns a number into an ordinal string used to denote the position in an
+    # ordered sequence such as 1st, 2nd, 3rd, 4th.
+    #
+    #   ordinalize(1)     # => "1st"
+    #   ordinalize(2)     # => "2nd"
+    #   ordinalize(1002)  # => "1002nd"
+    #   ordinalize(1003)  # => "1003rd"
+    #   ordinalize(-11)   # => "-11th"
+    #   ordinalize(-1021) # => "-1021st"
+    def ordinalize(number)
+      "#{number}#{ordinal(number)}"
+    end
+
     # Applies inflection rules for +singularize+ and +pluralize+.
     #
     #  apply_inflections("post", inflections.plurals)    # => "posts"
     #  apply_inflections("posts", inflections.singulars) # => "post"
-    def apply_inflections(word, rules)
-      result = word.to_s.dup
+    private def apply_inflections(word, rules)
+      result = word.to_s
 
-      if word.empty? || inflections.uncountables.include?(result.downcase[/\b\w+\Z/])
-        result
-      else
-        rules.each { |rule, replacement| break if result.sub!(rule, replacement) }
-        result
+      return result if result.empty? || inflections.uncountables.includes?(result.downcase[/\b\w+\Z/])
+
+      rules.each do |rule_and_replacement|
+        rule, replacement = rule_and_replacement
+        if result =~ rule
+          result = result.gsub(rule) do |s, match|
+            replacement = replacement.gsub("\\1", match[1]?)
+            replacement = replacement.gsub("\\2", match[2]?)
+            replacement
+          end
+          break
+        end
       end
+
+      result
     end
   end
 end

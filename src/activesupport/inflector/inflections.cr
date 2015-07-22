@@ -34,10 +34,10 @@ module ActiveSupport
       getter :plurals, :singulars, :uncountables, :humans, :acronyms, :acronym_regex
 
       def initialize
-        @plurals = [] of Array(String | Regex)
-        @singulars = [] of Array(String | Regex)
+        @plurals = [] of {Regex, String}
+        @singulars = [] of {Regex, String}
         @uncountables = [] of String
-        @humans = [] of Array(String | Regex)
+        @humans = [] of {Regex, String}
         @acronyms = {} of String => String
         @acronym_regex = /(?=a)b/
       end
@@ -110,7 +110,9 @@ module ActiveSupport
       def plural(rule, replacement)
         @uncountables.delete(rule) if rule.is_a?(String)
         @uncountables.delete(replacement)
-        @plurals.unshift([rule, replacement])
+
+        rule = Regex.new(rule) if rule.is_a?(String)
+        @plurals.unshift({rule, replacement})
       end
 
       # Specifies a new singularization rule and its replacement. The rule can
@@ -120,7 +122,9 @@ module ActiveSupport
       def singular(rule, replacement)
         @uncountables.delete(rule) if rule.is_a?(String)
         @uncountables.delete(replacement)
-        @singulars.unshift([rule, replacement])
+
+        rule = Regex.new(rule) if rule.is_a?(String)
+        @singulars.unshift({rule, replacement})
       end
 
       # Specifies a new irregular that applies to both pluralization and
@@ -141,11 +145,11 @@ module ActiveSupport
         prest = plural[1..-1].to_s
 
         if s0.upcase == p0.upcase
-          plural(/(#{s0})#{srest}$/i, "\1" + prest)
-          plural(/(#{p0})#{prest}$/i, "\1" + prest)
+          plural(/(#{s0})#{srest}$/i, "\\1" + prest)
+          plural(/(#{p0})#{prest}$/i, "\\1" + prest)
 
-          singular(/(#{s0})#{srest}$/i, "\1" + srest)
-          singular(/(#{p0})#{prest}$/i, "\1" + srest)
+          singular(/(#{s0})#{srest}$/i, "\\1" + srest)
+          singular(/(#{p0})#{prest}$/i, "\\1" + srest)
         else
           plural(/#{s0.upcase}(?i)#{srest}$/,   p0.upcase   + prest)
           plural(/#{s0.downcase}(?i)#{srest}$/, p0.downcase + prest)
@@ -163,9 +167,12 @@ module ActiveSupport
       #
       #   uncountable "money"
       #   uncountable "money", "information"
-      #   uncountable %w( money information rice )
       def uncountable(*words)
-        @uncountables += words.to_a.map(&.to_s) # (&.downcase)
+        @uncountables += words.map(&.to_s) # (&.downcase)
+      end
+
+      def uncountable(words : Array(String))
+        @uncountables += words.map(&.downcase) # (&.downcase)
       end
 
       # Specifies a humanized form of a string by a regular expression rule or
@@ -177,7 +184,9 @@ module ActiveSupport
       #   human /_cnt$/i, "\1_count"
       #   human "legacy_col_person_name", "Name"
       def human(rule, replacement)
-        @humans.unshift([rule, replacement])
+        rule = Regex.new(rule) if rule.is_a?(String)
+
+        @humans.unshift({rule, replacement})
       end
 
       # Clears the loaded inflections within a given scope (default is

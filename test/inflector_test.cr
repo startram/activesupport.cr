@@ -55,50 +55,43 @@ class InflectorTest < Minitest::Test
 #     assert_equal "sponsor", ActiveSupport::Inflector.singularize(ActiveSupport::Inflector.pluralize(countable_word))
 #   end
 
-  macro define_method(name, &block)
-    def {{name.id}}
-      {{yield}}
-    end
-  end
-
-  macro define_pluralize_singular_tests
+  macro build_pluralize_singularize_tests
     {% for singular, plural in SingularToPlural %}
       def test_pluralize_singular_{{singular.id.gsub(/[^A-Za-z]/, "_")}}
         singular = {{singular}}
         plural = {{plural}}
+
         assert_equal plural, ActiveSupport::Inflector.pluralize(singular)
+        assert_equal plural.capitalize, ActiveSupport::Inflector.pluralize(singular.capitalize)
+      end
+
+      def test_singularize_plural_{{plural.id.gsub(/[^A-Za-z]/, "_")}}
+        singular = {{singular}}
+        plural = {{plural}}
+
+        assert_equal singular, ActiveSupport::Inflector.singularize(plural)
+        assert_equal singular.capitalize, ActiveSupport::Inflector.singularize(plural.capitalize)
+      end
+
+      def test_pluralize_plural_{{plural.id.gsub(/[^A-Za-z]/, "_")}}
+        singular = {{singular}}
+        plural = {{plural}}
+
+        assert_equal plural, ActiveSupport::Inflector.pluralize(plural)
+        assert_equal plural.capitalize, ActiveSupport::Inflector.pluralize(plural.capitalize)
+      end
+
+      def test_singularize_singular_{{singular.id.gsub(/[^A-Za-z]/, "_")}}
+        singular = {{singular}}
+        plural = {{plural}}
+
+        assert_equal singular, ActiveSupport::Inflector.singularize(singular)
+        assert_equal singular.capitalize, ActiveSupport::Inflector.singularize(singular.capitalize)
       end
     {% end %}
   end
 
-  # define_pluralize_singular_tests
-
-  # SingularToPlural.each do |singular, plural|
-  #   define_methods "test_pluralize_singular_#{singular}" do
-  #     assert_equal plural, ActiveSupport::Inflector.pluralize(singular)
-  #     assert_equal plural.capitalize, ActiveSupport::Inflector.pluralize(singular.capitalize)
-  #   end
-  # end
-
-#   SingularToPlural.each do |singular, plural|
-#     define_method "test_singularize_plural_#{plural}" do
-#       assert_equal(singular, ActiveSupport::Inflector.singularize(plural))
-#       assert_equal(singular.capitalize, ActiveSupport::Inflector.singularize(plural.capitalize))
-#     end
-#   end
-
-#   SingularToPlural.each do |singular, plural|
-#     define_method "test_pluralize_plural_#{plural}" do
-#       assert_equal(plural, ActiveSupport::Inflector.pluralize(plural))
-#       assert_equal(plural.capitalize, ActiveSupport::Inflector.pluralize(plural.capitalize))
-#     end
-
-#     define_method "test_singularize_singular_#{singular}" do
-#       assert_equal(singular, ActiveSupport::Inflector.singularize(singular))
-#       assert_equal(singular.capitalize, ActiveSupport::Inflector.singularize(singular.capitalize))
-#     end
-#   end
-
+  build_pluralize_singularize_tests
 
 #   def test_overwrite_previous_inflectors
 #     assert_equal("series", ActiveSupport::Inflector.singularize("series"))
@@ -188,26 +181,26 @@ class InflectorTest < Minitest::Test
 #     assert_equal("Nonlegacyapi", ActiveSupport::Inflector.camelize("nonlegacyapi"))
 #   end
 
-#   def test_acronyms_camelize_lower
-#     ActiveSupport::Inflector.inflections do |inflect|
-#       inflect.acronym("API")
-#       inflect.acronym("HTML")
-#     end
+  def test_acronyms_camelize_lower
+    ActiveSupport::Inflector.inflections do |inflect|
+      inflect.acronym("API")
+      inflect.acronym("HTML")
+    end
 
-#     assert_equal("htmlAPI", ActiveSupport::Inflector.camelize("html_api", false))
-#     assert_equal("htmlAPI", ActiveSupport::Inflector.camelize("htmlAPI", false))
-#     assert_equal("htmlAPI", ActiveSupport::Inflector.camelize("HTMLAPI", false))
-#   end
+    assert_equal("htmlAPI", ActiveSupport::Inflector.camelize("html_api", false))
+    assert_equal("htmlAPI", ActiveSupport::Inflector.camelize("htmlAPI", false))
+    assert_equal("htmlAPI", ActiveSupport::Inflector.camelize("HTMLAPI", false))
+  end
 
-#   def test_underscore_acronym_sequence
-#     ActiveSupport::Inflector.inflections do |inflect|
-#       inflect.acronym("API")
-#       inflect.acronym("JSON")
-#       inflect.acronym("HTML")
-#     end
+  # def test_underscore_acronym_sequence
+  #   ActiveSupport::Inflector.inflections do |inflect|
+  #     inflect.acronym("API")
+  #     inflect.acronym("JSON")
+  #     inflect.acronym("HTML")
+  #   end
 
-#     assert_equal("json_html_api", ActiveSupport::Inflector.underscore("JSONHTMLAPI"))
-#   end
+  #   assert_equal("json_html_api", ActiveSupport::Inflector.underscore("JSONHTMLAPI"))
+  # end
 
   def test_underscore
     CamelToUnderscore.each do |camel, underscore|
@@ -219,11 +212,11 @@ class InflectorTest < Minitest::Test
     end
   end
 
-#   def test_camelize_with_module
-#     CamelWithModuleToUnderscoreWithSlash.each do |camel, underscore|
-#       assert_equal(camel, ActiveSupport::Inflector.camelize(underscore))
-#     end
-#   end
+  def test_camelize_with_module
+    CamelWithModuleToUnderscoreWithSlash.each do |camel, underscore|
+      assert_equal(camel, ActiveSupport::Inflector.camelize(underscore))
+    end
+  end
 
   def test_underscore_with_slashes
     CamelWithModuleToUnderscoreWithSlash.each do |camel, underscore|
@@ -293,20 +286,20 @@ class InflectorTest < Minitest::Test
 #     end
 #   end
 
-  # def test_classify
-  #   ClassNameToTableName.each do |class_name, table_name|
-  #     assert_equal(class_name, ActiveSupport::Inflector.classify(table_name))
-  #     assert_equal(class_name, ActiveSupport::Inflector.classify("table_prefix." + table_name))
-  #   end
-  # end
+  def test_classify
+    ClassNameToTableName.each do |class_name, table_name|
+      assert_equal(class_name, ActiveSupport::Inflector.classify(table_name))
+      assert_equal(class_name, ActiveSupport::Inflector.classify("table_prefix." + table_name))
+    end
+  end
 
-  # def test_classify_with_symbol
-  #   assert_equal "FooBar", ActiveSupport::Inflector.classify(:foo_bars)
-  # end
+  def test_classify_with_symbol
+    assert_equal "FooBar", ActiveSupport::Inflector.classify(:foo_bars)
+  end
 
-  # def test_classify_with_leading_schema_name
-  #   assert_equal "FooBar", ActiveSupport::Inflector.classify("schema.foo_bar")
-  # end
+  def test_classify_with_leading_schema_name
+    assert_equal "FooBar", ActiveSupport::Inflector.classify("schema.foo_bar")
+  end
 
   def test_humanize
     UnderscoreToHuman.each do |underscore, human|
@@ -320,22 +313,22 @@ class InflectorTest < Minitest::Test
     end
   end
 
-#   def test_humanize_by_rule
-#     ActiveSupport::Inflector.inflections do |inflect|
-#       inflect.human(/_cnt$/i, "\1_count")
-#       inflect.human(/^prefx_/i, "\1")
-#     end
-#     assert_equal("Jargon count", ActiveSupport::Inflector.humanize("jargon_cnt"))
-#     assert_equal("Request", ActiveSupport::Inflector.humanize("prefx_request"))
-#   end
+  def test_humanize_by_rule
+    ActiveSupport::Inflector.inflections do |inflect|
+      inflect.human(/_cnt$/i, "_count")
+      inflect.human(/^prefx_/i, "")
+    end
+    assert_equal("Jargon count", ActiveSupport::Inflector.humanize("jargon_cnt"))
+    assert_equal("Request", ActiveSupport::Inflector.humanize("prefx_request"))
+  end
 
-#   def test_humanize_by_string
-#     ActiveSupport::Inflector.inflections do |inflect|
-#       inflect.human("col_rpted_bugs", "Reported bugs")
-#     end
-#     assert_equal("Reported bugs", ActiveSupport::Inflector.humanize("col_rpted_bugs"))
-#     assert_equal("Col rpted bugs", ActiveSupport::Inflector.humanize("COL_rpted_bugs"))
-#   end
+  def test_humanize_by_string
+    ActiveSupport::Inflector.inflections do |inflect|
+      inflect.human("col_rpted_bugs", "Reported bugs")
+    end
+    assert_equal("Reported bugs", ActiveSupport::Inflector.humanize("col_rpted_bugs"))
+    assert_equal("Col rpted bugs", ActiveSupport::Inflector.humanize("COL_rpted_bugs"))
+  end
 
 #   def test_constantize
 #     run_constantize_tests_on do |string|
@@ -349,17 +342,17 @@ class InflectorTest < Minitest::Test
 #     end
 #   end
 
-#   def test_ordinal
-#     OrdinalNumbers.each do |number, ordinalized|
-#       assert_equal(ordinalized, number + ActiveSupport::Inflector.ordinal(number))
-#     end
-#   end
+  def test_ordinal
+    OrdinalNumbers.each do |number, ordinalized|
+      assert_equal(ordinalized, number + ActiveSupport::Inflector.ordinal(number))
+    end
+  end
 
-#   def test_ordinalize
-#     OrdinalNumbers.each do |number, ordinalized|
-#       assert_equal(ordinalized, ActiveSupport::Inflector.ordinalize(number))
-#     end
-#   end
+  def test_ordinalize
+    OrdinalNumbers.each do |number, ordinalized|
+      assert_equal(ordinalized, ActiveSupport::Inflector.ordinalize(number))
+    end
+  end
 
   def test_dasherize
     UnderscoresToDashes.each do |underscored, dasherized|
