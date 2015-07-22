@@ -1,0 +1,3 @@
+deps do
+  github "ysbaddaden/minitest.cr"
+end
