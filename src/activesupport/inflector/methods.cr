@@ -1,4 +1,4 @@
-require "../inflections"
+require "../default_inflections"
 
 module ActiveSupport
   module Inflector
@@ -82,9 +82,9 @@ module ActiveSupport
       camel_cased_word
         .to_s
         .gsub("::", "/")
-        #.gsub(/(?:(?<=([A-Za-z\d]))|\b)(#{inflections.acronym_regex})(?=\b|[^a-z])/) { |s, matches| "#{matches[1] && "_"}#{matches[2].downcase}" }
-        .gsub(/([A-Z\d]+)([A-Z][a-z])/) { |s, matches| "#{matches[1]}_#{matches[2]}"}
-        .gsub(/([a-z\d])([A-Z])/) { |s, matches| "#{matches[1]}_#{matches[2]}"}
+        .gsub(/(?:(?<=([A-Za-z\d]))|\b)(#{inflections.acronym_regex})(?=\b|[^a-z])/) { |s, m| "#{m[1]? && "_"}#{m[2].downcase}" }
+        .gsub(/([A-Z\d]+)([A-Z][a-z])/) { |s, m| "#{m[1]}_#{m[2]}" }
+        .gsub(/([a-z\d])([A-Z])/) { |s, m| "#{m[1]}_#{m[2]}" }
         .tr("-", "_")
         .downcase
     end
@@ -134,6 +134,30 @@ module ActiveSupport
       end
 
       result
+    end
+
+    # Capitalizes all the words and replaces some characters in the string to
+    # create a nicer looking title. +titleize+ is meant for creating pretty
+    # output. It is not used in the Rails internals.
+    #
+    # +titleize+ is also aliased as +titlecase+.
+    #
+    #   titleize('man from the boondocks')   # => "Man From The Boondocks"
+    #   titleize('x-men: the last stand')    # => "X Men: The Last Stand"
+    #   titleize('TheManWithoutAPast')       # => "The Man Without A Past"
+    #   titleize('raiders_of_the_lost_ark')  # => "Raiders Of The Lost Ark"
+    def titleize(word)
+      humanize(underscore(word)).gsub(/\b(?<!['’`])[a-z]/) { |s| s.capitalize }
+    end
+
+    # Creates the name of a table like Rails does for models to table names.
+    # This method uses the #pluralize method on the last word in the string.
+    #
+    #   tableize('RawScaledScorer') # => "raw_scaled_scorers"
+    #   tableize('egg_and_ham')     # => "egg_and_hams"
+    #   tableize('fancyCategory')   # => "fancy_categories"
+    def tableize(class_name)
+      pluralize(underscore(class_name))
     end
 
     # Creates a class name from a plural table name like Rails does for table

@@ -1,10 +1,25 @@
 # require "thread_safe"
-# require "active_support/core_ext/array/prepend_and_append"
 # require "active_support/i18n"
 
 module ActiveSupport
   module Inflector
     extend self
+
+    # Yields a singleton instance of Inflector::Inflections so you can specify
+    # additional inflector rules. If passed an optional locale, rules for other
+    # languages can be specified. If not specified, defaults to <tt>:en</tt>.
+    # Only rules for English are provided.
+    #
+    #   ActiveSupport::Inflector.inflections(:en) do |inflect|
+    #     inflect.uncountable "rails"
+    #   end
+    def inflections(locale = :en)
+      Inflections.instance(locale)
+    end
+
+    def inflections(locale = :en, &block)
+      yield Inflections.instance(locale)
+    end
 
     # A singleton instance of this class is yielded by Inflector.inflections,
     # which can then be used to specify additional inflection rules. If passed
@@ -25,10 +40,18 @@ module ActiveSupport
     # singularization rules that is runs. This guarantees that your rules run
     # before any of the rules that may already have been loaded.
     class Inflections
-      @@__instance__ = {} of Symbol => self
+      @@inflections = {} of Symbol => self
 
       def self.instance(locale = :en)
-        @@__instance__[locale] ||= new
+        @@inflections[locale] ||= new
+      end
+
+      # Private, for test suite
+      def self._inflections
+        @@inflections
+      end
+      def self._inflections=(inflections)
+        @@inflections = inflections
       end
 
       getter :plurals, :singulars, :uncountables, :humans, :acronyms, :acronym_regex
@@ -167,12 +190,17 @@ module ActiveSupport
       #
       #   uncountable "money"
       #   uncountable "money", "information"
+      #   uncountable %w[foo bar]
       def uncountable(*words)
-        @uncountables += words.map(&.to_s) # (&.downcase)
+        @uncountables += words.to_a.map(&.downcase)
       end
 
       def uncountable(words : Array(String))
-        @uncountables += words.map(&.downcase) # (&.downcase)
+        @uncountables += words.map(&.downcase)
+      end
+
+      def uncountable
+        @uncountables
       end
 
       # Specifies a humanized form of a string by a regular expression rule or
@@ -207,22 +235,6 @@ module ActiveSupport
           #instance_variable_set "@#{scope}", []
         end
       end
-    end
-
-    # Yields a singleton instance of Inflector::Inflections so you can specify
-    # additional inflector rules. If passed an optional locale, rules for other
-    # languages can be specified. If not specified, defaults to <tt>:en</tt>.
-    # Only rules for English are provided.
-    #
-    #   ActiveSupport::Inflector.inflections(:en) do |inflect|
-    #     inflect.uncountable "rails"
-    #   end
-    def inflections(locale = :en)
-      Inflections.instance(locale)
-    end
-
-    def inflections(locale = :en, &block)
-      yield Inflections.instance(locale)
     end
   end
 end

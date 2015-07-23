@@ -1,5 +1,5 @@
 module InflectorTestCases
-  SingularToPlural = {
+  SINGULAR_TO_PLURAL = {
     "search"      => "searches",
     "switch"      => "switches",
     "fix"         => "fixes",
@@ -220,7 +220,7 @@ module InflectorTestCases
     "underground"     => "underground"
   }
 
-  MixtureToTitleCase = {
+  MIXTURE_TO_TITLE_CASE = {
     "active_record"         => "Active Record",
     "ActiveRecord"          => "Active Record",
     "action web service"    => "Action Web Service",
