@@ -196,10 +196,10 @@ class StringInflectionsTest < Minitest::Test
 #     assert_equal expected, original
 #   end
 
-#   def test_string_inquiry
-#     assert "production".inquiry.production?
-#     assert !"production".inquiry.development?
-#   end
+  def test_string_inquiry
+    assert "production".inquiry.production?
+    refute "production".inquiry.development?
+  end
 
 #   def test_truncate
 #     assert_equal "Hello World!", "Hello World!".truncate(12)
