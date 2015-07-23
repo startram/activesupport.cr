@@ -231,8 +231,16 @@ module ActiveSupport
           @singulars = @singulars.clear
           @uncountables = @uncountables.clear
           @humans = @humans.clear
-        else
-          #instance_variable_set "@#{scope}", []
+        when :plurals
+          @plurals = @plurals.clear
+        when :singulars
+          @singulars = @singulars.clear
+        when :uncountables
+          @uncountables = @uncountables.clear
+        when :humans
+          @humans = @humans.clear
+        when :acronyms
+          @acronyms = @acronyms.clear
         end
       end
     end

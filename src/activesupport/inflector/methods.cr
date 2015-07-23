@@ -182,6 +182,47 @@ module ActiveSupport
       underscored_word.tr("_", "-")
     end
 
+    # Removes the module part from the expression in the string.
+    #
+    #   demodulize("ActiveRecord::CoreExtensions::String::Inflections") # => "Inflections"
+    #   demodulize("Inflections")                                       # => "Inflections"
+    #   demodulize("::Inflections")                                     # => "Inflections"
+    #   demodulize("")                                                  # => ""
+    #
+    # See also #deconstantize.
+    def demodulize(path)
+      path = path.to_s
+      if i = path.rindex("::")
+        path[(i+2)..-1]
+      else
+        path
+      end
+    end
+
+    # Removes the rightmost segment from the constant expression in the string.
+    #
+    #   deconstantize("Net::HTTP")   # => "Net"
+    #   deconstantize("::Net::HTTP") # => "::Net"
+    #   deconstantize("String")      # => ""
+    #   deconstantize("::String")    # => ""
+    #   deconstantize("")            # => ""
+    #
+    # See also #demodulize.
+    def deconstantize(path)
+      path.to_s[0, path.rindex("::") || 0] # implementation based on the one in facets" Module#spacename
+    end
+
+    # Creates a foreign key name from a class name.
+    # +separate_class_name_and_id_with_underscore+ sets whether
+    # the method should put "_" between the name and "id".
+    #
+    #   foreign_key("Message")        # => "message_id"
+    #   foreign_key("Message", false) # => "messageid"
+    #   foreign_key("Admin::Post")    # => "post_id"
+    def foreign_key(class_name, separate_class_name_and_id_with_underscore = true)
+      underscore(demodulize(class_name)) + (separate_class_name_and_id_with_underscore ? "_id" : "id")
+    end
+
     # Returns the suffix that should be added to a number to denote the position
     # in an ordered sequence such as 1st, 2nd, 3rd, 4th.
     #

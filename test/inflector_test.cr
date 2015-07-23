@@ -217,34 +217,34 @@ class InflectorTest < Minitest::Test
     end
   end
 
-#   def test_demodulize
-#     assert_equal "Account", ActiveSupport::Inflector.demodulize("MyApplication::Billing::Account")
-#     assert_equal "Account", ActiveSupport::Inflector.demodulize("Account")
-#     assert_equal "Account", ActiveSupport::Inflector.demodulize("::Account")
-#     assert_equal "", ActiveSupport::Inflector.demodulize("")
-#   end
+  def test_demodulize
+    assert_equal "Account", ActiveSupport::Inflector.demodulize("MyApplication::Billing::Account")
+    assert_equal "Account", ActiveSupport::Inflector.demodulize("Account")
+    assert_equal "Account", ActiveSupport::Inflector.demodulize("::Account")
+    assert_equal "", ActiveSupport::Inflector.demodulize("")
+  end
 
-#   def test_deconstantize
-#     assert_equal "MyApplication::Billing", ActiveSupport::Inflector.deconstantize("MyApplication::Billing::Account")
-#     assert_equal "::MyApplication::Billing", ActiveSupport::Inflector.deconstantize("::MyApplication::Billing::Account")
+  def test_deconstantize
+    assert_equal "MyApplication::Billing", ActiveSupport::Inflector.deconstantize("MyApplication::Billing::Account")
+    assert_equal "::MyApplication::Billing", ActiveSupport::Inflector.deconstantize("::MyApplication::Billing::Account")
 
-#     assert_equal "MyApplication", ActiveSupport::Inflector.deconstantize("MyApplication::Billing")
-#     assert_equal "::MyApplication", ActiveSupport::Inflector.deconstantize("::MyApplication::Billing")
+    assert_equal "MyApplication", ActiveSupport::Inflector.deconstantize("MyApplication::Billing")
+    assert_equal "::MyApplication", ActiveSupport::Inflector.deconstantize("::MyApplication::Billing")
 
-#     assert_equal "", ActiveSupport::Inflector.deconstantize("Account")
-#     assert_equal "", ActiveSupport::Inflector.deconstantize("::Account")
-#     assert_equal "", ActiveSupport::Inflector.deconstantize("")
-#   end
+    assert_equal "", ActiveSupport::Inflector.deconstantize("Account")
+    assert_equal "", ActiveSupport::Inflector.deconstantize("::Account")
+    assert_equal "", ActiveSupport::Inflector.deconstantize("")
+  end
 
-#   def test_foreign_key
-#     ClassNameToForeignKeyWithUnderscore.each do |klass, foreign_key|
-#       assert_equal(foreign_key, ActiveSupport::Inflector.foreign_key(klass))
-#     end
+  def test_foreign_key
+    ClassNameToForeignKeyWithUnderscore.each do |klass, foreign_key|
+      assert_equal(foreign_key, ActiveSupport::Inflector.foreign_key(klass))
+    end
 
-#     ClassNameToForeignKeyWithoutUnderscore.each do |klass, foreign_key|
-#       assert_equal(foreign_key, ActiveSupport::Inflector.foreign_key(klass, false))
-#     end
-#   end
+    ClassNameToForeignKeyWithoutUnderscore.each do |klass, foreign_key|
+      assert_equal(foreign_key, ActiveSupport::Inflector.foreign_key(klass, false))
+    end
+  end
 
   def test_tableize
     ClassNameToTableName.each do |class_name, table_name|
@@ -371,14 +371,12 @@ class InflectorTest < Minitest::Test
     end
   end
 
-#   %w{plurals singulars uncountables humans}.each do |inflection_type|
-#     class_eval <<-RUBY, __FILE__, __LINE__ + 1
-#       def test_clear_#{inflection_type}
-#         ActiveSupport::Inflector.inflections.clear :#{inflection_type}
-#         assert ActiveSupport::Inflector.inflections.#{inflection_type}.empty?, \"#{inflection_type} inflections should be empty after clear :#{inflection_type}\"
-#       end
-#     RUBY
-#   end
+  {% for inflection_type in ["plurals", "singulars", "uncountables", "humans"] %}
+    def test_clear_{{inflection_type.id}}
+      ActiveSupport::Inflector.inflections.clear :{{inflection_type.id}}
+      assert_empty ActiveSupport::Inflector.inflections.{{inflection_type.id}}, "{{inflection_type.id}} inflections should be empty after clear :{{inflection_type.id}}"
+    end
+  {% end %}
 
 #   def test_inflector_locality
 #     ActiveSupport::Inflector.inflections(:es) do |inflect|
@@ -409,108 +407,113 @@ class InflectorTest < Minitest::Test
 #     assert !ActiveSupport::Inflector.inflections.singulars.empty?
 #   end
 
-#   def test_clear_all
-#     ActiveSupport::Inflector.inflections do |inflect|
-#       # ensure any data is present
-#       inflect.plural(/(quiz)$/i, "\1zes")
-#       inflect.singular(/(database)s$/i, "\1")
-#       inflect.uncountable("series")
-#       inflect.human("col_rpted_bugs", "Reported bugs")
+  def test_clear_all
+    ActiveSupport::Inflector.inflections do |inflect|
+      # ensure any data is present
+      inflect.plural(/(quiz)$/i, "\1zes")
+      inflect.singular(/(database)s$/i, "\1")
+      inflect.uncountable("series")
+      inflect.human("col_rpted_bugs", "Reported bugs")
 
-#       inflect.clear :all
+      inflect.clear :all
 
-#       assert inflect.plurals.empty?
-#       assert inflect.singulars.empty?
-#       assert inflect.uncountables.empty?
-#       assert inflect.humans.empty?
-#     end
-#   end
+      assert_empty inflect.plurals
+      assert_empty inflect.singulars
+      assert_empty inflect.uncountables
+      assert_empty inflect.humans
+    end
+  end
 
-#   def test_clear_with_default
-#     ActiveSupport::Inflector.inflections do |inflect|
-#       # ensure any data is present
-#       inflect.plural(/(quiz)$/i, "\1zes")
-#       inflect.singular(/(database)s$/i, "\1")
-#       inflect.uncountable("series")
-#       inflect.human("col_rpted_bugs", "Reported bugs")
+  def test_clear_with_default
+    ActiveSupport::Inflector.inflections do |inflect|
+      # ensure any data is present
+      inflect.plural(/(quiz)$/i, "\1zes")
+      inflect.singular(/(database)s$/i, "\1")
+      inflect.uncountable("series")
+      inflect.human("col_rpted_bugs", "Reported bugs")
 
-#       inflect.clear
+      inflect.clear
 
-#       assert inflect.plurals.empty?
-#       assert inflect.singulars.empty?
-#       assert inflect.uncountables.empty?
-#       assert inflect.humans.empty?
-#     end
-#   end
+      assert inflect.plurals.empty?
+      assert inflect.singulars.empty?
+      assert inflect.uncountables.empty?
+      assert inflect.humans.empty?
+    end
+  end
 
-#   Irregularities.each do |singular, plural|
-#     define_method("test_irregularity_between_#{singular}_and_#{plural}") do
-#       ActiveSupport::Inflector.inflections do |inflect|
-#         inflect.irregular(singular, plural)
-#         assert_equal singular, ActiveSupport::Inflector.singularize(plural)
-#         assert_equal plural, ActiveSupport::Inflector.pluralize(singular)
-#       end
-#     end
-#   end
+  {% for singular, plural in Irregularities %}
+    def test_irregularity_between_{{singular.id}}_and_{{plural.id}}
+      ActiveSupport::Inflector.inflections do |inflect|
+        singular = {{singular}}
+        plural = {{plural}}
 
-#   Irregularities.each do |singular, plural|
-#     define_method("test_pluralize_of_irregularity_#{plural}_should_be_the_same") do
-#       ActiveSupport::Inflector.inflections do |inflect|
-#         inflect.irregular(singular, plural)
-#         assert_equal plural, ActiveSupport::Inflector.pluralize(plural)
-#       end
-#     end
-#   end
+        inflect.irregular(singular, plural)
+        assert_equal singular, ActiveSupport::Inflector.singularize(plural)
+        assert_equal plural, ActiveSupport::Inflector.pluralize(singular)
+      end
+    end
 
-#   Irregularities.each do |singular, plural|
-#     define_method("test_singularize_of_irregularity_#{singular}_should_be_the_same") do
-#       ActiveSupport::Inflector.inflections do |inflect|
-#         inflect.irregular(singular, plural)
-#         assert_equal singular, ActiveSupport::Inflector.singularize(singular)
-#       end
-#     end
-#   end
+    def test_pluralize_of_irregularity_{{plural.id}}_should_be_the_same
+      ActiveSupport::Inflector.inflections do |inflect|
+        singular = {{singular}}
+        plural = {{plural}}
 
-#   [ :all, [] ].each do |scope|
-#     ActiveSupport::Inflector.inflections do |inflect|
-#       define_method("test_clear_inflections_with_#{scope.kind_of?(Array) ? "no_arguments" : scope}") do
-#         # save all the inflections
-#         singulars, plurals, uncountables = inflect.singulars, inflect.plurals, inflect.uncountables
+        inflect.irregular(singular, plural)
+        assert_equal plural, ActiveSupport::Inflector.pluralize(plural)
+      end
+    end
 
-#         # clear all the inflections
-#         inflect.clear(*scope)
+    def test_singularize_of_irregularity_{{singular.id}}_should_be_the_same
+      ActiveSupport::Inflector.inflections do |inflect|
+        singular = {{singular}}
+        plural = {{plural}}
 
-#         assert_equal [], inflect.singulars
-#         assert_equal [], inflect.plurals
-#         assert_equal [], inflect.uncountables
+        inflect.irregular(singular, plural)
+        assert_equal singular, ActiveSupport::Inflector.singularize(singular)
+      end
+    end
+  {% end %}
 
-#         # restore all the inflections
-#         singulars.reverse_each { |singular| inflect.singular(*singular) }
-#         plurals.reverse_each   { |plural|   inflect.plural(*plural) }
-#         inflect.uncountable(uncountables)
+  def test_clear_inflections_with_no_args_and_scope
+    [:all, nil].each do |scope|
+      ActiveSupport::Inflector.inflections do |inflect|
+        # save all the inflections
+        singulars, plurals, uncountables = inflect.singulars, inflect.plurals, inflect.uncountables
 
-#         assert_equal singulars, inflect.singulars
-#         assert_equal plurals, inflect.plurals
-#         assert_equal uncountables, inflect.uncountables
-#       end
-#     end
-#   end
+        # clear all the inflections
+        scope.nil? ? inflect.clear : inflect.clear(scope)
 
-#   %w(plurals singulars uncountables humans acronyms).each do |scope|
-#     define_method("test_clear_inflections_with_#{scope}") do
-#       # clear the inflections
-#       ActiveSupport::Inflector.inflections do |inflect|
-#         inflect.clear(scope)
-#         assert_equal [], inflect.send(scope)
-#       end
-#     end
-#   end
+        assert inflect.singulars.empty?
+        assert inflect.plurals.empty?
+        assert inflect.uncountables.empty?
 
-#   def test_inflections_with_uncountable_words
-#     ActiveSupport::Inflector.inflections do |inflect|
-#       inflect.uncountable "HTTP"
-#     end
+        # restore all the inflections
+        singulars.reverse_each { |singular| inflect.singular(*singular) }
+        plurals.reverse_each   { |plural|   inflect.plural(*plural) }
+        inflect.uncountable(uncountables)
 
-#     assert_equal "HTTP", ActiveSupport::Inflector.pluralize("HTTP")
-#   end
+        assert_equal singulars, inflect.singulars
+        assert_equal plurals, inflect.plurals
+        assert_equal uncountables, inflect.uncountables
+      end
+    end
+  end
+
+  {% for scope in [:plurals, :singulars, :uncountables, :humans, :acronyms] %}
+    def test_clear_inflections_with_{{scope.id}}
+      # clear the inflections
+      ActiveSupport::Inflector.inflections do |inflect|
+        inflect.clear({{scope}})
+        assert_empty inflect.{{scope.id}}
+      end
+    end
+  {% end %}
+
+  def test_inflections_with_uncountable_words
+    ActiveSupport::Inflector.inflections do |inflect|
+      inflect.uncountable "HTTP"
+    end
+
+    assert_equal "HTTP", ActiveSupport::Inflector.pluralize("HTTP")
+  end
 end
