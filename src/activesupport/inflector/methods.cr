@@ -112,7 +112,7 @@ module ActiveSupport
     #
     #   humanize("ssl_error") # => "SSL error"
     #
-    def humanize(lower_case_and_underscored_word, options = {} of Symbol => Bool)
+    def humanize(lower_case_and_underscored_word, capitalize = true) #options = {} of Symbol => Bool
       result = lower_case_and_underscored_word.to_s
 
       inflections.humans.each do |rule_and_replacement|
@@ -129,9 +129,7 @@ module ActiveSupport
         inflections.acronyms.fetch(match, match.downcase)
       end
 
-      if options.fetch(:capitalize, true)
-        result = result.gsub(/\A\w/) { |match| match.upcase }
-      end
+      result = result.gsub(/\A\w/) { |match| match.upcase } if capitalize
 
       result
     end
