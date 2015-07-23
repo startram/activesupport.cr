@@ -46,43 +46,39 @@ class InflectorTest < Minitest::Test
     assert_equal "sponsor", ActiveSupport::Inflector.singularize(ActiveSupport::Inflector.pluralize(countable_word))
   end
 
-  macro build_pluralize_singularize_tests
-    {% for singular, plural in SINGULAR_TO_PLURAL %}
-      def test_pluralize_singular_{{singular.id.gsub(/[^A-Za-z]/, "_")}}
-        singular = {{singular}}
-        plural = {{plural}}
+  {% for singular, plural in SINGULAR_TO_PLURAL %}
+    def test_pluralize_singular_{{singular.id.gsub(/[^A-Za-z]/, "_")}}
+      singular = {{singular}}
+      plural = {{plural}}
 
-        assert_equal plural, ActiveSupport::Inflector.pluralize(singular)
-        assert_equal plural.capitalize, ActiveSupport::Inflector.pluralize(singular.capitalize)
-      end
+      assert_equal plural, ActiveSupport::Inflector.pluralize(singular)
+      assert_equal plural.capitalize, ActiveSupport::Inflector.pluralize(singular.capitalize)
+    end
 
-      def test_singularize_plural_{{plural.id.gsub(/[^A-Za-z]/, "_")}}
-        singular = {{singular}}
-        plural = {{plural}}
+    def test_singularize_plural_{{plural.id.gsub(/[^A-Za-z]/, "_")}}
+      singular = {{singular}}
+      plural = {{plural}}
 
-        assert_equal singular, ActiveSupport::Inflector.singularize(plural)
-        assert_equal singular.capitalize, ActiveSupport::Inflector.singularize(plural.capitalize)
-      end
+      assert_equal singular, ActiveSupport::Inflector.singularize(plural)
+      assert_equal singular.capitalize, ActiveSupport::Inflector.singularize(plural.capitalize)
+    end
 
-      def test_pluralize_plural_{{plural.id.gsub(/[^A-Za-z]/, "_")}}
-        singular = {{singular}}
-        plural = {{plural}}
+    def test_pluralize_plural_{{plural.id.gsub(/[^A-Za-z]/, "_")}}
+      singular = {{singular}}
+      plural = {{plural}}
 
-        assert_equal plural, ActiveSupport::Inflector.pluralize(plural)
-        assert_equal plural.capitalize, ActiveSupport::Inflector.pluralize(plural.capitalize)
-      end
+      assert_equal plural, ActiveSupport::Inflector.pluralize(plural)
+      assert_equal plural.capitalize, ActiveSupport::Inflector.pluralize(plural.capitalize)
+    end
 
-      def test_singularize_singular_{{singular.id.gsub(/[^A-Za-z]/, "_")}}
-        singular = {{singular}}
-        plural = {{plural}}
+    def test_singularize_singular_{{singular.id.gsub(/[^A-Za-z]/, "_")}}
+      singular = {{singular}}
+      plural = {{plural}}
 
-        assert_equal singular, ActiveSupport::Inflector.singularize(singular)
-        assert_equal singular.capitalize, ActiveSupport::Inflector.singularize(singular.capitalize)
-      end
-    {% end %}
-  end
-
-  build_pluralize_singularize_tests
+      assert_equal singular, ActiveSupport::Inflector.singularize(singular)
+      assert_equal singular.capitalize, ActiveSupport::Inflector.singularize(singular.capitalize)
+    end
+  {% end %}
 
   def test_overwrite_previous_inflectors
     assert_equal("series", ActiveSupport::Inflector.singularize("series"))
