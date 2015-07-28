@@ -260,18 +260,18 @@ class StringInflectionsTest < Minitest::Test
 #     assert !"Hello World!".truncate(12).html_safe?
 #   end
 
-#   def test_remove
-#     original = "This is a good day to die"
-#     assert_equal "This is a good day", original.remove(" to die")
-#     assert_equal "This is a good day", original.remove(" to ", /die/)
-#     assert_equal "This is a good day to die", original
-#   end
+  def test_remove
+    original = "This is a good day to die"
+    assert_equal "This is a good day", original.remove(" to die")
+    assert_equal "This is a good day", original.remove(" to ", /die/)
+    assert_equal "This is a good day to die", original
+  end
 
-#   def test_remove_for_multiple_occurrences
-#     original = "This is a good day to die to die"
-#     assert_equal "This is a good day", original.remove(" to die")
-#     assert_equal "This is a good day to die to die", original
-#   end
+  def test_remove_for_multiple_occurrences
+    original = "This is a good day to die to die"
+    assert_equal "This is a good day", original.remove(" to die")
+    assert_equal "This is a good day to die to die", original
+  end
 
 #   def test_remove!
 #     original = "This is a very good day to die"

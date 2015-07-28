@@ -30,4 +30,14 @@ class String
 
     "#{self[0, stop]}#{omission}"
   end
+
+  # Alters the string by removing all occurrences of the patterns.
+  #   str = "foo bar test"
+  #   str.remove(" test")                 # => "foo bar"
+  #   str                                  # => "foo bar"
+  def remove(*patterns)
+    patterns.inject(self) do |string, pattern|
+      string.gsub pattern, ""
+    end
+  end
 end
