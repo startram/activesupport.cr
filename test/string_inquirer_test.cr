@@ -19,6 +19,6 @@ class StringInquirerTest < Minitest::Test
 
   def test_delegates_to_string
     assert_equal "PRODUCTION", string_inquirer.upcase
-    assert_equal 10, string_inquirer.length
+    assert_equal 10, string_inquirer.size
   end
 end

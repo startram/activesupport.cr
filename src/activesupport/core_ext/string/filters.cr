@@ -18,9 +18,9 @@ class String
   #   "And they found that many people were sleeping better.".truncate(25, omission: "... (continued)")
   #   # => "And they f... (continued)"
   def truncate(truncate_at, omission = "...", separator = nil)
-    return self unless length > truncate_at
+    return self unless size > truncate_at
 
-    length_with_room_for_omission = truncate_at - omission.length
+    length_with_room_for_omission = truncate_at - omission.size
     stop = \
       if separator
         rindex(separator, length_with_room_for_omission) || length_with_room_for_omission
